@@ -11,9 +11,16 @@ function CookieStorage(cookies, options) {
   }
 
   this.setCookieOptions = options.setCookieOptions;
+  this.cookieList = options.cookieList;
 }
 
 CookieStorage.prototype.getItem = function (key, callback) {
+
+  if(!this.cookieList.includes(key)){
+    return Promise.resolve(localStorage.getItem(key))
+  }
+
+
   var item = this.cookies.get(this.keyPrefix + key) || null;
   if (callback) {
     callback(null, item);
@@ -22,6 +29,9 @@ CookieStorage.prototype.getItem = function (key, callback) {
 }
 
 CookieStorage.prototype.setItem = function (key, value, callback) {
+  if(!this.cookieList.includes(key)){
+    return Promise.resolve(localStorage.setItem(key, value))
+  }
   var options = Object.assign({}, this.setCookieOptions);
 
   var expires = this.expiration.default;
@@ -53,6 +63,11 @@ CookieStorage.prototype.setItem = function (key, value, callback) {
 }
 
 CookieStorage.prototype.removeItem = function (key, callback) {
+
+  if(!this.cookieList.includes(key)){
+    return Promise.resolve(localStorage.removeItem(key))
+  }
+
   this.cookies.expire(this.keyPrefix + key);
 
   return this.getAllKeys().then(function (allKeys) {
